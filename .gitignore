@@ -9,3 +9,4 @@ managed_components/
 .clangd
 .cproject
 .project
+sdkconfig.old

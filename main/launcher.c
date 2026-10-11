@@ -285,7 +285,7 @@ static rg_gui_event_t webui_switch_cb(rg_gui_option_t *option, rg_gui_event_t ev
 
 static int rom_scan_index = 0;
 
-static int scanroms_cb(const rg_scandir_t *file, void *arg)
+int scanroms_cb(const rg_scandir_t *file, void *arg)
 {
     rg_gui_option_t* options = arg;
     
@@ -313,7 +313,7 @@ static int scanroms_cb(const rg_scandir_t *file, void *arg)
     return RG_SCANDIR_CONTINUE;
 }
 
-static rg_gui_event_t switch_game_cb(rg_gui_option_t *option, rg_gui_event_t event)
+rg_gui_event_t switch_game_cb(rg_gui_option_t *option, rg_gui_event_t event)
 {
     if (event == RG_DIALOG_ENTER) 
     {
@@ -393,8 +393,6 @@ static void launcher_menu() {
 }
 
 void launcher_main() {
-    ESP_ERROR_CHECK(nvs_flash_init());
-
     const rg_handlers_t handlers = {
 		.event = &event_handler,
         .options = &options_handler,

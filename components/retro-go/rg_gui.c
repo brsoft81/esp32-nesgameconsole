@@ -10,6 +10,7 @@
 
 #include "bitmaps/image_hourglass.h"
 #include "fonts/fonts.h"
+#include "shared.h"
 
 static struct
 {
@@ -2274,6 +2275,28 @@ static rg_gui_event_t slot_select_cb(rg_gui_option_t *option, rg_gui_event_t eve
     #undef draw_status
 }
 
+rg_gui_event_t back_to_launcher_cb(rg_gui_option_t *option, rg_gui_event_t event)
+{
+    if (event == RG_DIALOG_ENTER) 
+    {
+        if (rg_gui_confirm(_("Back to launcher?"), NULL, false)) {
+            cJSON *obj = cJSON_CreateObject();
+            cJSON_AddBoolToObject(obj, RG_STARTUP_PARAM_BACK_TO_LAUNCHER, true);
+            char *content = cJSON_Print(obj);
+
+            if(!rg_storage_write_startup_file(content)){
+                rg_gui_alert("Error", "Fatal error occurred while accessing the file system.");
+                RG_PANIC("Fatal error occurred while accessing the file system.");
+            }
+
+            cJSON_Delete(obj);
+            free(content);
+            rg_system_restart();
+        }
+    }
+    return RG_DIALOG_VOID;
+}
+
 int rg_gui_savestate_menu(const char *title, const char *rom_path)
 {
     rg_emu_states_t *savestates = rg_emu_get_states(rom_path, 4);
@@ -2296,16 +2319,18 @@ void rg_gui_game_menu(void)
     const char *rom_path = rg_system_get_app()->romPath;
     bool have_option_btn = rg_input_key_is_present(RG_KEY_OPTION);
     const rg_gui_option_t choices[] = {
-        {1000, _("Save game"), NULL, RG_DIALOG_FLAG_NORMAL, NULL},
+        {1000, _("Save game"),          NULL, RG_DIALOG_FLAG_NORMAL, NULL},
         // {2000, _("Save & Quit"),     NULL, RG_DIALOG_FLAG_NORMAL, NULL},
-        {3001, _("Load game"),       NULL, RG_DIALOG_FLAG_NORMAL, NULL},
-        {3000, _("Reset"),           NULL, RG_DIALOG_FLAG_NORMAL, NULL},
+        {3001, _("Load game"),          NULL, RG_DIALOG_FLAG_NORMAL, NULL},
+        {3000, _("Reset"),              NULL, RG_DIALOG_FLAG_NORMAL, NULL},
         #ifdef RG_ENABLE_NETPLAY
-        {5000, _("Netplay"),         NULL, RG_DIALOG_FLAG_NORMAL, NULL},
+        {5000, _("Netplay"),            NULL, RG_DIALOG_FLAG_NORMAL, NULL},
         #endif
-        {5500, _("Options"),         NULL, have_option_btn ? RG_DIALOG_FLAG_HIDDEN : RG_DIALOG_FLAG_NORMAL, NULL},
-        {6000, _("About"),           NULL, RG_DIALOG_FLAG_NORMAL, NULL},
-       //  {7000, _("Quit"),            NULL, RG_DIALOG_FLAG_NORMAL, NULL},
+        {5500, _("Options"),            NULL, have_option_btn ? RG_DIALOG_FLAG_HIDDEN : RG_DIALOG_FLAG_NORMAL, NULL},
+        {9001, _("Switch game"),        NULL, RG_DIALOG_FLAG_NORMAL, &switch_game_cb},
+        {9002, _("Back to launcher"),   NULL, RG_DIALOG_FLAG_NORMAL, &back_to_launcher_cb},
+        {6000, _("About"),              NULL, RG_DIALOG_FLAG_NORMAL, NULL},
+        //  {7000, _("Quit"),           NULL, RG_DIALOG_FLAG_NORMAL, NULL},
         RG_DIALOG_END
     };
     int slot, sel;

@@ -631,6 +631,45 @@ bool rg_storage_write_file(const char *path, const void *data_ptr, size_t data_l
 }
 
 /**
+ * 向启动文件（startup.tmp）中写入内容
+ */
+bool rg_storage_write_startup_file(const char* content)
+{
+    rg_storage_delete(RG_FILE_PATH_STARTUP);
+    return rg_storage_write_file(RG_FILE_PATH_STARTUP, content, strlen(content), 0);
+}
+
+/**
+ * 从启动文件（startup.tmp）中读取内容
+ */
+char* rg_storage_read_startup_file()
+{
+    const size_t buffer_size = 512;
+    void* buffer = NULL;
+
+    FILE *fp = fopen(RG_FILE_PATH_STARTUP, "rb");
+    if (!fp)
+    {
+        goto error_handle;
+    }
+
+    size_t bytesRead = 0;
+    
+    buffer = malloc(buffer_size);
+    bytesRead = fread(buffer, 1, buffer_size, fp);
+    if(bytesRead < 1)
+    {
+        free(buffer);
+        buffer = NULL;
+        goto error_handle;
+    }
+
+error_handle:
+    fclose(fp);
+    return buffer;
+}
+
+/**
  * This is a minimal UNZIP implementation that utilizes only the miniz primitives found in ESP32's ROM.
  * I think that we should use miniz' ZIP API instead and bundle miniz with retro-go. But first I need
  * to do some testing to determine if the increased executable size is acceptable...

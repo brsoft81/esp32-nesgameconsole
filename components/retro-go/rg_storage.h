@@ -5,16 +5,18 @@
 #include <stdint.h>
 #include <time.h>
 
-#define RG_BASE_PATH        RG_STORAGE_ROOT "/retro-go"
-#define RG_BASE_PATH_BIOS   RG_BASE_PATH "/bios"
-#define RG_BASE_PATH_CACHE  RG_BASE_PATH "/cache"
-#define RG_BASE_PATH_CONFIG RG_BASE_PATH "/config"
-#define RG_BASE_PATH_COVERS RG_STORAGE_ROOT "/romart"
-#define RG_BASE_PATH_MUSIC  RG_STORAGE_ROOT "/music"
-#define RG_BASE_PATH_ROMS   RG_STORAGE_ROOT "/roms"
-#define RG_BASE_PATH_SAVES  RG_BASE_PATH "/saves"
-#define RG_BASE_PATH_THEMES RG_BASE_PATH "/themes"
-#define RG_BASE_PATH_BORDERS RG_BASE_PATH "/borders"
+#define RG_BASE_PATH             RG_STORAGE_ROOT "/retro-go"
+#define RG_BASE_PATH_BIOS        RG_BASE_PATH "/bios"
+#define RG_BASE_PATH_CACHE       RG_BASE_PATH "/cache"
+#define RG_BASE_PATH_CONFIG      RG_BASE_PATH "/config"
+#define RG_BASE_PATH_COVERS      RG_STORAGE_ROOT "/romart"
+#define RG_BASE_PATH_MUSIC       RG_STORAGE_ROOT "/music"
+#define RG_BASE_PATH_ROMS        RG_STORAGE_ROOT "/roms"
+#define RG_BASE_PATH_SAVES       RG_BASE_PATH "/saves"
+#define RG_BASE_PATH_THEMES      RG_BASE_PATH "/themes"
+#define RG_BASE_PATH_BORDERS     RG_BASE_PATH "/borders"
+
+#define RG_FILE_PATH_STARTUP   RG_BASE_PATH "/startup.tmp"
 
 typedef struct
 {
@@ -67,6 +69,8 @@ bool rg_storage_scandir(const char *path, rg_scandir_cb_t *callback, void *arg, 
 int64_t rg_storage_get_free_space(const char *path);
 bool rg_storage_get_storage_info(size_t* total, size_t* used);
 bool rg_storage_load_rom_to_flash(const char *path);
+bool rg_storage_write_startup_file(const char* content);
+char* rg_storage_read_startup_file(void);
 
 enum
 {

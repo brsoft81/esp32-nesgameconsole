@@ -4,6 +4,7 @@
 #include "driver/gpio.h"
 #include "esp_log.h"
 #include "shared.h"
+#include "cJSON.h"
 
 #include "rg_system.h"
 #include "rg_gui.h"
@@ -38,6 +39,33 @@ static void find_rom() {
 
 static int check_start_mode()
 {
+    // 
+    // 查看启动文件中，返回启动菜单选项是否为真
+    // 因为代码运行到此处时，核心系统尚未初始化，所以此处仅使用最基本的文件读写功能
+    //
+    rg_storage_init();
+    char *textbuff = rg_storage_read_startup_file();
+    if(textbuff){
+        ESP_LOGW(__FILE__, "Found [startup.tmp], check it.");
+        cJSON *root = cJSON_Parse(textbuff);
+        if(root != NULL)
+        {
+            if(cJSON_IsTrue(cJSON_GetObjectItem(root, RG_STARTUP_PARAM_BACK_TO_LAUNCHER)))
+            {
+                rg_storage_delete(RG_FILE_PATH_STARTUP);
+                free(textbuff);
+                cJSON_Delete(root);
+                rg_storage_deinit();
+                return START_MODE_LAUNCHER;
+            }
+        }
+
+        ESP_LOGW(__FILE__, "'startup.tmp' has no vaild content, force delete it.");
+        rg_storage_delete(RG_FILE_PATH_STARTUP);
+    }
+    rg_storage_deinit();
+
+
     // 
     // 检查用户是否按下了Launcher Key（默认是Select键）
     //
