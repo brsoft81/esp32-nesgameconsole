@@ -20,6 +20,7 @@ static uint32_t screen_line_checksum[RG_SCREEN_HEIGHT + 1];
 // This is to avoid flooring a number that is approximated to .9999999 and be explicit about it
 #define FLOAT_TO_INT(x) ((int)((x) + 0.1f))
 
+static const char *SETTING_INVERT = "DispInvert";
 static const char *SETTING_BACKLIGHT = "DispBacklight";
 static const char *SETTING_SCALING = "DispScaling";
 static const char *SETTING_FILTER = "DispFilter";
@@ -27,7 +28,7 @@ static const char *SETTING_ROTATION = "DispRotation";
 static const char *SETTING_BORDER = "DispBorder";
 static const char *SETTING_CUSTOM_ZOOM = "DispCustomZoom";
 
-static void lcd_init(void);
+static void lcd_init(bool invert);
 static void lcd_deinit(void);
 static void lcd_sync(void);
 static void lcd_set_rotation(int rotation);
@@ -464,6 +465,11 @@ display_backlight_t rg_display_get_backlight(void)
     return config.backlight;
 }
 
+bool rg_display_get_invert(void)
+{
+    return config.invert;
+}
+
 void rg_display_set_border(const char *filename)
 {
     free(config.border_file);
@@ -631,6 +637,7 @@ void rg_display_init(void)
         .rotation = rg_settings_get_number(NS_APP, SETTING_ROTATION, RG_DISPLAY_ROTATION_AUTO),
         .border_file = rg_settings_get_string(NS_APP, SETTING_BORDER, NULL),
         .custom_zoom = rg_settings_get_number(NS_APP, SETTING_CUSTOM_ZOOM, 1.0),
+        .invert = rg_settings_get_boolean(NS_GLOBAL, SETTING_INVERT, false),
     };
     display = (rg_display_t){
         .screen.real_width = RG_SCREEN_WIDTH,
@@ -642,7 +649,7 @@ void rg_display_init(void)
     };
     display.screen.width -= display.screen.margins.left + display.screen.margins.right;
     display.screen.height -= display.screen.margins.top + display.screen.margins.bottom;
-    lcd_init();
+    lcd_init(config.invert);
     rg_display_clear(C_BLACK);
     rg_task_delay(80); // Wait for the screen be cleared before turning on the backlight (40ms doesn't seem to be enough...)
     lcd_set_backlight(config.backlight);

@@ -199,7 +199,7 @@ static void lcd_sync(void)
     // Unused for SPI LCD
 }
 
-static void lcd_init(void)
+static void lcd_init(bool invert)
 {
 #ifdef RG_GPIO_LCD_BCKL
     // Initialize backlight at 0% to avoid the lcd reset flash
@@ -249,6 +249,8 @@ static void lcd_init(void)
     #endif
     ILI9341_CMD(0x11);  // Exit Sleep
     rg_usleep(10 * 1000);// Wait 10ms after sleep out
+    if (invert)
+        ILI9341_CMD(0x21);
     ILI9341_CMD(0x29);  // Display on
 }
 

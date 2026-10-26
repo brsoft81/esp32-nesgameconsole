@@ -1452,6 +1452,19 @@ static rg_gui_event_t brightness_update_cb(rg_gui_option_t *option, rg_gui_event
     return RG_DIALOG_VOID;
 }
 
+static rg_gui_event_t invert_update_cb(rg_gui_option_t *option, rg_gui_event_t event)
+{
+    bool enabled = rg_settings_get_boolean(NS_GLOBAL, "DispInvert", false);
+    if (event == RG_DIALOG_PREV || event == RG_DIALOG_NEXT || event == RG_DIALOG_ENTER)
+    {
+        enabled = !enabled;
+        rg_settings_set_boolean(NS_GLOBAL, "DispInvert", enabled);
+        return RG_DIALOG_REDRAW;
+    }
+    strcpy(option->value, enabled ? _("On") : _("Off"));
+    return RG_DIALOG_VOID;
+}
+
 static rg_gui_event_t audio_update_cb(rg_gui_option_t *option, rg_gui_event_t event)
 {
     size_t count = 0;
@@ -2040,6 +2053,7 @@ void rg_gui_options_menu(void)
         #endif
         {0, _("Volume"),        "-", RG_DIALOG_FLAG_NORMAL, &volume_update_cb},
         {0, _("Audio out"),     "-", RG_DIALOG_FLAG_NORMAL, &audio_update_cb},
+        {0, _("Display invert(next restart)"), "-", RG_DIALOG_FLAG_NORMAL, &invert_update_cb},
         RG_DIALOG_END,
     };
     const rg_gui_option_t misc_options[] = {
